@@ -1,25 +1,31 @@
+import PriorityQueue from "../PriorityQueue";
+
 class Graph {
     constructor(size, min_weight, max_weight){
         this.size = size;
         this.min_weight = min_weight;
         this.max_weight = max_weight;
-        this.vis = [];
-        this.dist = [];
-        this.prev = [];
+
+        this.start = Math.floor(Math.random() * (this.size)).toString();
 
         this.mat = [];
+        this.ref_mat = [];
+
         for (let i = 0; i < this.size; i++) {
           const row = []
           for (let j = 0; j < this.size; j++) {
             row.push(0);
           }
           this.mat.push(row);
+          this.ref_mat.push([...row]);
         }
       
         for (let row = 0; row < this.mat.length; row++) {
           for (let col = 0; col < this.mat.length; col++) {
             if (col < row) {
-              this.mat[row][col] = Math.floor(Math.random() * (this.max_weight - this.min_weight + 1)) + this.min_weight;
+                const rn = Math.floor(Math.random() * (this.max_weight - this.min_weight + 1)) + this.min_weight;
+                this.mat[row][col] = rn;
+                this.ref_mat[row][col] = rn;
             }
           }
         }
@@ -32,27 +38,36 @@ class Graph {
             }
           }
         }
-        console.log(this.mat)
     }
 
-    dsp(start){
-        
-        for (let i = 0; i < mat.length; i++){
+    getMat(){
+        return this.ref_mat;
+    }
+
+    getStart()
+    {
+        return this.start;
+    }
+
+    dsp(){
+        const vis = []
+        const dist = [];
+        const prev = [];
+        for (let i = 0; i < this.mat.length; i++){
           vis[i] = false;
           dist[i] = 99999;
           prev[i] = null;
         }
-        console.log(prev);
-        dist[start] = 0;
+        dist[this.start] = 0;
         const queue = new PriorityQueue();
-        queue.enqueue(start.toString(), 0);
+        queue.enqueue(this.start.toString(), 0);
       
         while(!queue.isEmpty())
         {
           const current_node = parseInt(queue.dequeue().element);
           vis[current_node] = true;
-          for(let node = 0; node < mat.length; node++){
-            const weight = mat[current_node][node];
+          for(let node = 0; node < this.mat.length; node++){
+            const weight = this.mat[current_node][node];
             if(!vis[node]){
               const newDist = dist[current_node] + weight;
               if(newDist < dist[node]){
@@ -63,12 +78,29 @@ class Graph {
             }
           }
         }
-        return [dist, prev];
+        const paths = this.path_deriver(prev);
+        return [dist, paths];
     }
 
-    msp(){
+    mst(){
 
     }
+
+    path_deriver(prev){
+        const paths = [];
+        for (let path = 0; path < prev.length; path++){
+          const new_path = [];
+          new_path.push(path);
+          let seeker = path;
+          while(prev[seeker] != null){
+            new_path.push(parseInt(prev[seeker]));
+            seeker = parseInt(prev[seeker]);
+          }
+          new_path.reverse();
+          paths.push(new_path);
+        }
+        return paths;
+      }
 
 
 }
